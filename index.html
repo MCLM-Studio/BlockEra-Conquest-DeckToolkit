@@ -342,7 +342,7 @@
 </head>
 <body>
   <header>
-    <h1>方块纪元：征伐 - 卡组校验与解析工具</h1>
+    <h1>方块纪元：征伐 - 卡组校验与解析工具（v2.0.0-1）</h1>
     <p>支持卡组导入 / 编辑校验 / 导出标准分享格式</p>
   </header>
   <main>
@@ -679,7 +679,7 @@
       return div;
     }
 
-    function validateDeck(deck) {
+    function validateDeck(deck, strictCount = false) {
       const errors = [];
       const warnings = [];
 
@@ -758,8 +758,14 @@
       }
 
       if (counts.total !== 40) {
-        errors.push(`卡组数量必须为 40 张（当前 ${counts.total}/40）。`);
+        const msg = `卡组数量必须为 40 张（当前 ${counts.total}/40）。`;
+        if (strictCount) {
+          errors.push(msg);
+        } else {
+          warnings.push(msg);
+        }
       }
+
 
       return { errors, warnings, counts };
     }
@@ -1324,7 +1330,7 @@
       });
 
       document.getElementById("btn-copy").addEventListener("click", async () => {
-        const { errors } = validateDeck(state.deck);
+        const { errors } = validateDeck(state.deck, true);
         if (alertIfIllegal(errors, "导出卡组")) return;
         const text = formatDeckExport(state.deck);
         try {
@@ -1337,7 +1343,7 @@
       });
 
       document.getElementById("btn-download").addEventListener("click", () => {
-        const { errors } = validateDeck(state.deck);
+        const { errors } = validateDeck(state.deck, true);
         if (alertIfIllegal(errors, "导出卡组")) return;
         const text = formatDeckExport(state.deck);
         const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
