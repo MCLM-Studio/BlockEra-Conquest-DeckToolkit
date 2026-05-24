@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>方块纪元：征伐 - 卡组校验与解析工具</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1f2430;
+      --text: #e6e6e6;
+      --muted: #a6adbb;
+      --accent: #7aa2f7;
+      --ok: #9ece6a;
+      --warn: #e0af68;
+      --err: #f7768e;
+      --border: #2b313c;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f7fb;
+        --panel: #ffffff;
+        --panel-2: #f0f2f8;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --accent: #2563eb;
+        --ok: #16a34a;
+        --warn: #d97706;
+        --err: #dc2626;
+        --border: #e5e7eb;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 16px 24px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      padding: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .panel h2 {
+      font-size: 15px;
+      margin: 0 0 8px;
+    }
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+    label {
+      font-size: 12px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: 13px;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    button {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .row > * { flex: 1; }
+    .status {
+      border-left: 3px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: var(--panel-2);
+      font-size: 12px;
+    }
+    .status.ok { border-left-color: var(--ok); }
+    .status.warn { border-left-color: var(--warn); }
+    .status.err { border-left-color: var(--err); }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+    .card-list {
+      display: grid;
+      gap: 8px;
+      max-height: 540px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .card-item {
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 6px;
+    }
+    .card-item h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .deck-section {
+      margin-bottom: 12px;
+    }
+    .deck-section h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .deck-entry {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      font-size: 13px;
+    }
+    .deck-entry small { color: var(--muted); }
+    .btn-icon {
+      padding: 4px 8px;
+      min-width: 32px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .toast {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    #right-panel {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+    .analysis-panel {
+      grid-column: 1 / -1;
+    }
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .analysis-section {
+      display: grid;
+      gap: 8px;
+    }
+    .chart {
+      display: grid;
+      gap: 6px;
+    }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 44px 1fr 64px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .bar {
+      height: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+    }
+    .chart-legend {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .legend-primary { background: var(--accent); }
+    .legend-range { background: var(--ok); }
+    .range-bar {
+      position: relative;
+      height: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .range-fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: rgba(158, 206, 106, 0.35);
+    }
+    .metric-list {
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .metric-list strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    @media (max-width: 1100px) {
+      #right-panel { grid-template-columns: 1fr; }
+      .analysis-grid { grid-template-columns: 1fr; }
+      .analysis-panel { grid-column: auto; }
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+
+    .modal {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: min(520px, 100%);
+      max-height: 80vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 10px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    .modal h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+    .modal-body {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+      padding: 8px;
+      font-size: 13px;
+    }
+    .modal-body ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    @media (max-width: 1100px) {
+      main { grid-template-columns: 1fr; }
+      .card-list { max-height: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>方块纪元：征伐 - 卡组校验与解析工具</h1>
+    <p>支持卡组导入 / 编辑校验 / 导出标准分享格式</p>
+  </header>
+  <main>
+    <section class="panel stack" id="left-panel">
+      <div>
+        <h2>卡组导入</h2>
+        <div class="stack">
+          <textarea id="import-text" placeholder="粘贴标准分享格式...\n【卡组名称】\n主阵营：主世界\n联盟阵营：无\n\nBOSS\n(25e) 简单监守者\n\n单位\n4x (2e) 简单僵尸\n\n事件\n4x (1e) 木剑"></textarea>
+          <div class="toolbar">
+            <button class="primary" id="btn-parse">解析文本</button>
+            <button id="btn-clipboard">从剪贴板导入</button>
+            <label class="pill" for="file-input" style="cursor:pointer;">导入文件</label>
+            <input type="file" id="file-input" accept=".txt,.deck,.md" style="display:none" />
+          </div>
+          <button id="btn-new">创建空白卡组</button>
+          <div class="toast" id="import-toast"></div>
+        </div>
+      </div>
+
+      <div>
+        <h2>卡组信息</h2>
+        <div class="stack">
+          <div>
+            <label for="deck-name">卡组名称</label>
+            <input type="text" id="deck-name" />
+          </div>
+          <div class="row">
+            <div>
+              <label for="main-faction">主阵营</label>
+              <select id="main-faction"></select>
+            </div>
+            <div>
+              <label for="ally-faction">联盟阵营</label>
+              <select id="ally-faction"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2>校验状态</h2>
+        <div class="stack" id="validation-list"></div>
+      </div>
+
+      <div>
+        <h2>卡组导出</h2>
+        <div class="stack">
+          <button class="primary" id="btn-copy">复制到剪贴板</button>
+          <button id="btn-download">导出为文件</button>
+          <div class="hint">将按标准分享格式输出。</div>
+          <div class="toast" id="export-toast"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel grid" id="right-panel">
+      <div class="panel" style="padding: 12px;">
+        <h2>卡牌库</h2>
+        <div class="row" style="margin-bottom:8px;">
+          <input type="text" id="search" placeholder="搜索卡牌名称" />
+          <select id="type-filter"></select>
+          <select id="faction-filter"></select>
+        </div>
+        <div class="row" style="margin-bottom:8px;">
+          <select id="cost-filter"></select>
+          <select id="grade-filter"></select>
+          <select id="skill-filter"></select>
+          <select id="sort-filter"></select>
+        </div>
+        <div class="card-list" id="card-list"></div>
+      </div>
+
+      <div class="panel" style="padding: 12px;">
+        <h2>当前卡组</h2>
+        <div class="hint" id="deck-summary"></div>
+        <div id="deck-list"></div>
+      </div>
+
+      <div class="panel analysis-panel" style="padding: 12px;">
+        <h2>卡组分析</h2>
+        <div class="analysis-grid">
+          <div class="analysis-section">
+            <div class="hint">费用曲线（整体）</div>
+            <div id="cost-curve" class="chart"></div>
+          </div>
+          <div class="analysis-section">
+            <div class="hint">费用曲线（单位）</div>
+            <div id="unit-curve" class="chart"></div>
+          </div>
+          <div class="analysis-section">
+            <div class="hint">费用曲线（事件）</div>
+            <div id="event-curve" class="chart"></div>
+          </div>
+          <div class="analysis-section">
+            <div class="hint">推荐曲线范围对比</div>
+            <div class="chart-legend">
+              <span class="legend-dot legend-primary"></span> 当前数量
+              <span class="legend-dot legend-range"></span> 推荐范围
+            </div>
+            <div id="recommended-curve" class="chart"></div>
+          </div>
+          <div class="analysis-section">
+            <div class="hint">前中后期强度</div>
+            <div id="phase-analysis" class="metric-list"></div>
+          </div>
+          <div class="analysis-section">
+            <div class="hint">平均费用</div>
+            <div id="avg-cost" class="metric-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="error-modal" role="dialog" aria-modal="true" aria-labelledby="error-modal-title">
+    <div class="modal">
+      <h3 id="error-modal-title">操作失败</h3>
+      <div class="modal-body">
+        <ul id="error-modal-list"></ul>
+      </div>
+      <div class="modal-footer">
+        <button id="error-modal-close" class="primary">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const FACTIONS = ["主世界", "下界", "末地"];
+
+    const CARD_DB = [
+      // 僵尸系列
+      { id: "unit.simple-zombie", name: "简单僵尸", type: "unit", cost: 2, size: 2, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
+      { id: "unit.normal-zombie", name: "普通僵尸", type: "unit", cost: 3, size: 2, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
+      { id: "unit.hard-zombie", name: "困难僵尸", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门"] },
+      // 幼年僵尸
+      { id: "unit.simple-baby-zombie", name: "简单幼年僵尸", type: "unit", cost: 4, size: 1, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
+      { id: "unit.normal-baby-zombie", name: "普通幼年僵尸", type: "unit", cost: 5, size: 1, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
+      { id: "unit.hard-baby-zombie", name: "困难幼年僵尸", type: "unit", cost: 6, size: 1, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "奋战"] },
+      // 僵尸村民
+      { id: "unit.simple-zombie-villager", name: "简单僵尸村民", type: "unit", cost: 2, size: 2, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
+      { id: "unit.normal-zombie-villager", name: "普通僵尸村民", type: "unit", cost: 3, size: 2, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
+      { id: "unit.hard-zombie-villager", name: "困难僵尸村民", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门"] },
+      // 幼年僵尸村民
+      { id: "unit.simple-baby-zombie-villager", name: "简单幼年僵尸村民", type: "unit", cost: 4, size: 1, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
+      { id: "unit.normal-baby-zombie-villager", name: "普通幼年僵尸村民", type: "unit", cost: 5, size: 1, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
+      { id: "unit.hard-baby-zombie-villager", name: "困难幼年僵尸村民", type: "unit", cost: 6, size: 1, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "奋战"] },
+      // 蠹虫
+      { id: "unit.simple-silverfish", name: "简单蠹虫", type: "unit", cost: 1, size: 1, attack: 1, hp: 1, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "末地", bracket: true }], skills: ["怕光", "虫蚀"] },
+      { id: "unit.normal-silverfish", name: "普通蠹虫", type: "unit", cost: 1, size: 1, attack: 1, hp: 1, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "末地", bracket: true }], skills: ["怕光", "虫蚀"] },
+      { id: "unit.hard-silverfish", name: "困难蠹虫", type: "unit", cost: 2, size: 1, attack: 2, hp: 1, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "末地", bracket: true }], skills: ["怕光", "虫蚀"] },
+      // 骷髅
+      { id: "unit.simple-skeleton", name: "简单骷髅", type: "unit", cost: 3, size: 2, attack: 3, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "射击"] },
+      { id: "unit.normal-skeleton", name: "普通骷髅", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "射击"] },
+      { id: "unit.hard-skeleton", name: "困难骷髅", type: "unit", cost: 5, size: 2, attack: 5, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "射击"] },
+      // 蜘蛛
+      { id: "unit.simple-spider", name: "简单蜘蛛", type: "unit", cost: 2, size: 1, attack: 1, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫"] },
+      { id: "unit.normal-spider", name: "普通蜘蛛", type: "unit", cost: 3, size: 1, attack: 2, hp: 3, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫"] },
+      { id: "unit.hard-spider", name: "困难蜘蛛", type: "unit", cost: 4, size: 1, attack: 3, hp: 4, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫"] },
+      // 苦力怕
+      { id: "unit.simple-creeper", name: "简单苦力怕", type: "unit", cost: 2, size: 2, attack: null, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["自爆"] },
+      { id: "unit.normal-creeper", name: "普通苦力怕", type: "unit", cost: 3, size: 2, attack: null, hp: 3, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["自爆"] },
+      { id: "unit.hard-creeper", name: "困难苦力怕", type: "unit", cost: 4, size: 2, attack: null, hp: 4, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["自爆"] },
+      // 末影人
+      { id: "unit.simple-enderman", name: "简单末影人", type: "unit", cost: 6, size: 3, attack: 4, hp: 4, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "下界", bracket: false }, { name: "末地", bracket: false }], skills: ["激怒", "瞬移", "移动方块"] },
+      { id: "unit.normal-enderman", name: "普通末影人", type: "unit", cost: 7, size: 3, attack: 5, hp: 4, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "下界", bracket: false }, { name: "末地", bracket: false }], skills: ["激怒", "瞬移", "移动方块"] },
+      { id: "unit.hard-enderman", name: "困难末影人", type: "unit", cost: 8, size: 3, attack: 6, hp: 4, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "下界", bracket: false }, { name: "末地", bracket: false }], skills: ["激怒", "瞬移", "移动方块"] },
+      // 监守者（BOSS）
+      { id: "unit.simple-warden", name: "简单监守者", type: "unit", cost: 25, size: 5, attack: 12, hp: 40, category: "BOSS", grade: "BOSS", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["霸主", "压轴登场", "探测", "钻地", "音波攻击", "破盾", "黑暗", "火焰免疫", "载具免疫"] },
+      { id: "unit.normal-warden", name: "普通监守者", type: "unit", cost: 30, size: 5, attack: 24, hp: 40, category: "BOSS", grade: "BOSS", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["霸主", "压轴登场", "探测", "钻地", "音波攻击", "破盾", "黑暗", "火焰免疫", "载具免疫"] },
+      { id: "unit.hard-warden", name: "困难监守者", type: "unit", cost: 35, size: 5, attack: 36, hp: 40, category: "BOSS", grade: "BOSS", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["霸主", "压轴登场", "探测", "钻地", "音波攻击", "破盾", "黑暗", "火焰免疫", "载具免疫"] },
+      // 衍生物（不可加入卡组）
+      { id: "token.infested-block", name: "虫蚀方块", type: "unit", cost: 0, size: 1, attack: 0, hp: 1, category: "方块", grade: "衍生物", limit: 0, deckLegal: false, factions: [{ name: "主世界", bracket: false }], skills: ["生虫", "增援"], source: "虫蚀" },
+
+      // 事件牌 - 剑系列
+      { id: "event.wood-sword", name: "木剑", type: "event", cost: 1, limit: 4, deckLegal: true, series: "剑" },
+      { id: "event.stone-sword", name: "石剑", type: "event", cost: 2, limit: 3, deckLegal: true, series: "剑" },
+      { id: "event.iron-sword", name: "铁剑", type: "event", cost: 3, limit: 2, deckLegal: true, series: "剑" },
+      { id: "event.diamond-sword", name: "钻石剑", type: "event", cost: 4, limit: 1, deckLegal: true, series: "剑" },
+      { id: "event.netherite-sword", name: "下界合金剑", type: "event", cost: 5, limit: 1, deckLegal: true, series: "剑" },
+      // 事件牌 - 镐系列
+      { id: "event.wood-pickaxe", name: "木镐", type: "event", cost: 1, limit: 4, deckLegal: true, series: "镐" },
+      { id: "event.stone-pickaxe", name: "石镐", type: "event", cost: 2, limit: 3, deckLegal: true, series: "镐" },
+      { id: "event.iron-pickaxe", name: "铁镐", type: "event", cost: 3, limit: 2, deckLegal: true, series: "镐" },
+      { id: "event.diamond-pickaxe", name: "钻石镐", type: "event", cost: 4, limit: 1, deckLegal: true, series: "镐" },
+      { id: "event.netherite-pickaxe", name: "下界合金镐", type: "event", cost: 5, limit: 1, deckLegal: true, series: "镐" },
+      // 事件牌 - 光照系列
+      { id: "event.redstone-torch", name: "红石火把", type: "event", cost: 3, limit: 4, deckLegal: true, series: "光照" },
+      { id: "event.flint-and-steel", name: "打火机", type: "event", cost: 3, limit: 3, deckLegal: true, series: "光照" },
+      { id: "event.daylight", name: "白日", type: "event", cost: 4, limit: 2, deckLegal: true, series: "光照" },
+      { id: "event.torch", name: "火把", type: "event", cost: 5, limit: 3, deckLegal: true, series: "光照" },
+      { id: "event.glowstone", name: "萤石块", type: "event", cost: 7, limit: 1, deckLegal: true, series: "光照" }
+    ];
+
+    const CARD_BY_NAME = Object.fromEntries(CARD_DB.map(card => [card.name, card]));
+    const UNIQUE_COSTS = [...new Set(CARD_DB.filter(card => card.deckLegal).map(card => card.cost))].sort((a, b) => a - b);
+    const UNIQUE_GRADES = ["简单", "普通", "困难", "BOSS"];
+    const UNIQUE_SKILLS = [...new Set(CARD_DB.flatMap(card => card.skills || []))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+
+    const gradeLimit = {
+      "简单": 4,
+      "普通": 2,
+      "困难": 1,
+      "BOSS": 1
+    };
+
+    const state = {
+      deck: createEmptyDeck(),
+      toastTimer: null,
+      hasExported: false
+    };
+
+    function createEmptyDeck() {
+      return {
+        name: "未命名卡组",
+        mainFaction: "",
+        allyFaction: "无",
+        entries: []
+      };
+    }
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function parseDeckText(raw) {
+      const lines = raw
+        .replace(/\r\n?/g, "\n")
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+      const result = {
+        name: "未命名卡组",
+        mainFaction: "",
+        allyFaction: "无",
+        entries: []
+      };
+
+      let section = "";
+      for (const line of lines) {
+        const nameMatch = line.match(/^【(.+)】$/);
+        if (nameMatch) {
+          result.name = nameMatch[1].trim();
+          continue;
+        }
+        const mainMatch = line.match(/^主阵营[:：]\s*(.+)$/);
+        if (mainMatch) {
+          result.mainFaction = mainMatch[1].trim();
+          continue;
+        }
+        const allyMatch = line.match(/^联盟阵营[:：]\s*(.+)$/);
+        if (allyMatch) {
+          result.allyFaction = allyMatch[1].trim();
+          continue;
+        }
+
+        if (["BOSS", "单位", "事件", "反制"].includes(line)) {
+          section = line;
+          continue;
+        }
+
+        if (!section) continue;
+
+        const withCount = line.match(/^(\d+)\s*x\s*\((\d+)\s*e\)\s*(.+)$/i);
+        const noCount = line.match(/^\((\d+)\s*e\)\s*(.+)$/i);
+
+        if (withCount) {
+          result.entries.push({
+            section,
+            count: parseInt(withCount[1], 10),
+            cost: parseInt(withCount[2], 10),
+            name: withCount[3].trim()
+          });
+          continue;
+        }
+
+        if (noCount) {
+          result.entries.push({
+            section,
+            count: 1,
+            cost: parseInt(noCount[1], 10),
+            name: noCount[2].trim()
+          });
+        }
+      }
+
+      return result;
+    }
+
+    function applyParsedDeck(parsed) {
+      const deck = createEmptyDeck();
+      deck.name = parsed.name || "未命名卡组";
+      deck.mainFaction = parsed.mainFaction || "";
+      deck.allyFaction = parsed.allyFaction || "无";
+
+      const entries = new Map();
+      const unknownEntries = [];
+
+      for (const entry of parsed.entries) {
+        const card = CARD_BY_NAME[entry.name];
+        if (!card) {
+          unknownEntries.push({
+            id: `unknown:${entry.name}`,
+            name: entry.name,
+            count: entry.count,
+            cost: entry.cost,
+            section: entry.section,
+            unknown: true
+          });
+          continue;
+        }
+        const key = card.id;
+        if (!entries.has(key)) {
+          entries.set(key, {
+            id: card.id,
+            name: card.name,
+            count: 0,
+            card
+          });
+        }
+        entries.get(key).count += entry.count;
+      }
+
+      deck.entries = [...entries.values(), ...unknownEntries];
+      state.deck = deck;
+      markDirty();
+      render();
+    }
+
+    function createStatusItem(text, level = "warn") {
+      const div = document.createElement("div");
+      div.className = `status ${level}`;
+      div.textContent = text;
+      return div;
+    }
+
+    function validateDeck(deck) {
+      const errors = [];
+      const warnings = [];
+
+      const counts = {
+        total: 0,
+        boss: 0,
+        alliance: 0,
+        units: 0,
+        events: 0
+      };
+
+      if (!deck.mainFaction) {
+        errors.push("主阵营未设置。");
+      }
+
+      if (deck.allyFaction && deck.allyFaction !== "无" && deck.allyFaction === deck.mainFaction) {
+        errors.push("联盟阵营不能与主阵营相同。");
+      }
+
+      for (const entry of deck.entries) {
+        counts.total += entry.count;
+
+        if (entry.unknown) {
+          errors.push(`未知卡牌：${entry.name}。`);
+          continue;
+        }
+
+        const card = entry.card;
+        if (!card.deckLegal) {
+          errors.push(`卡牌不可加入卡组：${card.name}。`);
+          continue;
+        }
+
+        if (card.type === "unit") counts.units += entry.count;
+        if (card.type === "event") counts.events += entry.count;
+
+        const allowedLimit = Math.min(
+          card.limit ?? Infinity,
+          gradeLimit[card.grade] ?? Infinity
+        );
+
+        if (entry.count > allowedLimit) {
+          errors.push(`卡牌 ${card.name} 超出带入上限（${allowedLimit}）。`);
+        }
+
+        if (card.category === "BOSS") {
+          counts.boss += entry.count;
+        }
+
+        if (card.type === "unit" && card.factions) {
+          const mainEligible = card.factions.some(f => !f.bracket && f.name === deck.mainFaction);
+          const allyEligible = card.factions.some(f => f.name === deck.allyFaction && (f.bracket || !f.bracket));
+
+          if (!mainEligible && !allyEligible) {
+            errors.push(`卡牌 ${card.name} 不符合主阵营或联盟阵营限制。`);
+          }
+
+          if (!mainEligible && allyEligible) {
+            if (!deck.allyFaction || deck.allyFaction === "无") {
+              errors.push(`卡牌 ${card.name} 属于联盟阵营，但联盟阵营未设置。`);
+            }
+            if (card.grade === "困难" || card.grade === "BOSS") {
+              errors.push(`联盟阵营卡不可带入困难或 BOSS：${card.name}。`);
+            }
+            counts.alliance += entry.count;
+          }
+        }
+      }
+
+      if (counts.boss !== 1) {
+        errors.push("卡组必须且只能包含 1 张 BOSS 卡。");
+      }
+
+      if (counts.alliance > 12) {
+        errors.push(`联盟阵营卡数量超限（当前 ${counts.alliance}/12）。`);
+      }
+
+      if (counts.total !== 40) {
+        errors.push(`卡组数量必须为 40 张（当前 ${counts.total}/40）。`);
+      }
+
+      return { errors, warnings, counts };
+    }
+
+    function addCardToDeck(card) {
+      const entry = state.deck.entries.find(item => item.id === card.id);
+      if (entry) {
+        entry.count += 1;
+      } else {
+        state.deck.entries.push({ id: card.id, name: card.name, count: 1, card });
+      }
+      markDirty();
+      const { errors } = validateDeck(state.deck);
+      showErrorsIfAny("卡组不合法", errors);
+      render();
+    }
+
+    function updateEntryCount(entryId, delta) {
+      const idx = state.deck.entries.findIndex(item => item.id === entryId);
+      if (idx === -1) return;
+      const entry = state.deck.entries[idx];
+      entry.count += delta;
+      if (entry.count <= 0) {
+        state.deck.entries.splice(idx, 1);
+      }
+      markDirty();
+      const { errors } = validateDeck(state.deck);
+      showErrorsIfAny("卡组不合法", errors);
+      render();
+    }
+
+    function formatDeckExport(deck) {
+      const lines = [];
+      lines.push(`【${deck.name || "未命名卡组"}】`);
+      lines.push(`主阵营：${deck.mainFaction || ""}`);
+      lines.push(`联盟阵营：${deck.allyFaction || "无"}`);
+      lines.push("");
+
+      const sections = {
+        BOSS: [],
+        单位: [],
+        事件: [],
+        反制: []
+      };
+
+      for (const entry of deck.entries) {
+        const card = entry.unknown ? null : entry.card;
+        const name = entry.name;
+        const cost = entry.unknown ? entry.cost : card.cost;
+        const line = `${entry.count}x (${cost}e) ${name}`;
+        const row = { line, cost };
+
+        if (!card) {
+          sections[entry.section || "单位"].push(row);
+          continue;
+        }
+        if (card.category === "BOSS") sections.BOSS.push(row);
+        else if (card.type === "unit") sections.单位.push(row);
+        else if (card.type === "event") sections.事件.push(row);
+      }
+
+      for (const [section, list] of Object.entries(sections)) {
+        if (list.length === 0) continue;
+        const sorted = list.sort((a, b) => a.cost - b.cost || a.line.localeCompare(b.line, "zh-CN"));
+        lines.push(section);
+        lines.push(...sorted.map(item => item.line));
+        lines.push("");
+      }
+
+      return lines.join("\n").trim() + "\n";
+    }
+
+    function entryCost(entry) {
+      if (entry.unknown) return entry.cost ?? 0;
+      return entry.card?.cost ?? 0;
+    }
+
+    function showToast(el, message) {
+      el.textContent = message;
+      if (state.toastTimer) clearTimeout(state.toastTimer);
+      state.toastTimer = setTimeout(() => { el.textContent = ""; }, 4000);
+    }
+
+    function markDirty() {
+      state.hasExported = false;
+    }
+
+    function markExported() {
+      state.hasExported = true;
+    }
+
+    function showErrorModal(title, errors) {
+      const overlay = document.getElementById("error-modal");
+      const titleEl = document.getElementById("error-modal-title");
+      const list = document.getElementById("error-modal-list");
+      titleEl.textContent = title || "操作失败";
+      list.innerHTML = "";
+      for (const error of errors) {
+        const li = document.createElement("li");
+        li.textContent = error;
+        list.appendChild(li);
+      }
+      overlay.style.display = "flex";
+    }
+
+    function hideErrorModal() {
+      document.getElementById("error-modal").style.display = "none";
+    }
+
+    function alertIfIllegal(errors, contextLabel) {
+      if (errors.length === 0) return false;
+      const title = contextLabel ? `${contextLabel}失败` : "非法操作";
+      showErrorModal(title, errors);
+      return true;
+    }
+
+    function showErrorsIfAny(title, errors) {
+      if (errors.length === 0) return false;
+      showErrorModal(title, errors);
+      return true;
+    }
+
+    function renderValidation() {
+      const list = document.getElementById("validation-list");
+      list.innerHTML = "";
+      const { errors, warnings, counts } = validateDeck(state.deck);
+
+      if (errors.length === 0 && warnings.length === 0) {
+        list.appendChild(createStatusItem("卡组合法。", "ok"));
+      }
+      for (const error of errors) list.appendChild(createStatusItem(error, "err"));
+      for (const warn of warnings) list.appendChild(createStatusItem(warn, "warn"));
+
+      const summary = document.getElementById("deck-summary");
+      summary.textContent = `总数 ${counts.total}/40 · 单位 ${counts.units} · 事件 ${counts.events} · BOSS ${counts.boss} · 联盟 ${counts.alliance}/12`;
+    }
+
+    function renderDeckList() {
+      const container = document.getElementById("deck-list");
+      container.innerHTML = "";
+
+      const sections = [
+        { title: "BOSS", filter: entry => entry.card && entry.card.category === "BOSS" },
+        { title: "单位", filter: entry => entry.card && entry.card.type === "unit" && entry.card.category !== "BOSS" },
+        { title: "事件", filter: entry => entry.card && entry.card.type === "event" },
+        { title: "未知", filter: entry => entry.unknown }
+      ];
+
+      for (const section of sections) {
+        const entries = state.deck.entries
+          .filter(section.filter)
+          .sort((a, b) => entryCost(a) - entryCost(b) || a.name.localeCompare(b.name, "zh-CN"));
+        if (entries.length === 0) continue;
+        const sectionDiv = document.createElement("div");
+        sectionDiv.className = "deck-section";
+        const h3 = document.createElement("h3");
+        h3.textContent = section.title;
+        sectionDiv.appendChild(h3);
+
+        for (const entry of entries) {
+          const line = document.createElement("div");
+          line.className = "deck-entry";
+          const left = document.createElement("div");
+          const costText = entry.unknown ? entry.cost : entry.card.cost;
+          left.innerHTML = `<strong>${entry.count}x</strong> ${entry.name} <small>(${costText}e)</small>`;
+          const controls = document.createElement("div");
+          controls.className = "row";
+          controls.style.justifyContent = "flex-end";
+          const minusBtn = document.createElement("button");
+          minusBtn.className = "btn-icon";
+          minusBtn.textContent = "-";
+          minusBtn.addEventListener("click", () => updateEntryCount(entry.id, -1));
+          const plusBtn = document.createElement("button");
+          plusBtn.className = "btn-icon";
+          plusBtn.textContent = "+";
+          plusBtn.addEventListener("click", () => updateEntryCount(entry.id, 1));
+          controls.appendChild(minusBtn);
+          controls.appendChild(plusBtn);
+
+          line.appendChild(left);
+          line.appendChild(controls);
+          sectionDiv.appendChild(line);
+        }
+
+        container.appendChild(sectionDiv);
+      }
+
+      if (container.children.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "hint";
+        empty.textContent = "暂无卡牌，请从右侧添加。";
+        container.appendChild(empty);
+      }
+    }
+
+    function renderCardList() {
+      const list = document.getElementById("card-list");
+      list.innerHTML = "";
+      const searchValue = document.getElementById("search").value.trim();
+      const typeValue = document.getElementById("type-filter").value;
+      const factionValue = document.getElementById("faction-filter").value;
+      const costValue = document.getElementById("cost-filter").value;
+      const gradeValue = document.getElementById("grade-filter").value;
+      const skillValue = document.getElementById("skill-filter").value;
+      const sortValue = document.getElementById("sort-filter").value;
+
+      const cards = CARD_DB.filter(card => card.deckLegal);
+      const filtered = cards.filter(card => {
+        if (searchValue && !card.name.includes(searchValue)) return false;
+        if (typeValue !== "all" && card.type !== typeValue) return false;
+        if (costValue !== "all" && card.cost !== Number(costValue)) return false;
+        if (gradeValue !== "all") {
+          const cardGrade = card.grade || "";
+          if (cardGrade !== gradeValue) return false;
+        }
+        if (skillValue !== "all") {
+          const skills = card.skills || [];
+          if (!skills.includes(skillValue)) return false;
+        }
+        if (factionValue !== "all" && card.type === "unit") {
+          const mainEligible = card.factions.some(f => !f.bracket && f.name === state.deck.mainFaction);
+          const allyEligible = card.factions.some(f => f.name === state.deck.allyFaction);
+          if (factionValue === "main" && !mainEligible) return false;
+          if (factionValue === "ally" && !allyEligible) return false;
+        }
+        return true;
+      });
+
+      const sorted = [...filtered].sort((a, b) => {
+        if (sortValue === "cost-asc") return a.cost - b.cost;
+        if (sortValue === "cost-desc") return b.cost - a.cost;
+        return a.name.localeCompare(b.name, "zh-CN");
+      });
+
+      for (const card of sorted) {
+        const item = document.createElement("div");
+        item.className = "card-item";
+        const title = document.createElement("h3");
+        title.textContent = card.name;
+        const meta = document.createElement("div");
+        meta.className = "card-meta";
+        meta.innerHTML = [
+          `费用 ${card.cost}e`,
+          card.type === "unit" ? `体型 ${card.size}` : "事件",
+          card.type === "unit" ? `攻击 ${card.attack ?? "—"}` : null,
+          card.type === "unit" ? `生命 ${card.hp}` : null,
+          card.grade ? `分级 ${card.grade}` : null,
+          card.category && card.type === "unit" ? `类别 ${card.category}` : null,
+          card.factions ? `阵营 ${formatFactions(card.factions)}` : "无阵营"
+        ].filter(Boolean).map(val => `<span class="pill">${val}</span>`).join(" ");
+
+        const skills = card.skills && card.skills.length > 0
+          ? `<div class="hint">技能：${card.skills.join("、")}</div>`
+          : "";
+
+        const count = state.deck.entries.find(entry => entry.id === card.id)?.count ?? 0;
+
+        const actions = document.createElement("div");
+        actions.className = "row";
+        const addBtn = document.createElement("button");
+        addBtn.textContent = `加入（当前 ${count}）`;
+        addBtn.addEventListener("click", () => {
+          addCardToDeck(card);
+          showToast(document.getElementById("import-toast"), `已加入 ${card.name}`);
+        });
+
+        actions.appendChild(addBtn);
+
+        item.appendChild(title);
+        item.appendChild(meta);
+        if (skills) {
+          const skillNode = document.createElement("div");
+          skillNode.innerHTML = skills;
+          item.appendChild(skillNode);
+        }
+        item.appendChild(actions);
+
+        list.appendChild(item);
+      }
+
+      if (sorted.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "hint";
+        empty.textContent = "未找到匹配卡牌。";
+        list.appendChild(empty);
+      }
+    }
+
+    function formatFactions(factions) {
+      return factions.map(f => f.bracket ? `(${f.name})` : f.name).join("、");
+    }
+
+    function renderMeta() {
+      document.getElementById("deck-name").value = state.deck.name;
+      document.getElementById("main-faction").value = state.deck.mainFaction;
+      document.getElementById("ally-faction").value = state.deck.allyFaction;
+    }
+
+    function renderAnalysis() {
+      const curveEl = document.getElementById("cost-curve");
+      const unitCurveEl = document.getElementById("unit-curve");
+      const eventCurveEl = document.getElementById("event-curve");
+      const recommendedEl = document.getElementById("recommended-curve");
+      const phaseEl = document.getElementById("phase-analysis");
+      const avgEl = document.getElementById("avg-cost");
+
+      const entries = state.deck.entries.filter(entry => !entry.unknown);
+      const unitEntries = entries.filter(entry => entry.card?.type === "unit");
+      const eventEntries = entries.filter(entry => entry.card?.type === "event");
+
+      renderCurve(curveEl, buildCostCurve(entries));
+      renderCurve(unitCurveEl, buildCostCurve(unitEntries));
+      renderCurve(eventCurveEl, buildCostCurve(eventEntries));
+      renderRecommendedCurve(recommendedEl, buildCostCurve(entries));
+
+      const phases = summarizePhases(entries);
+      const phaseLines = [
+        `<div><strong>${phases.early.label}</strong>：${phases.early.count} 张</div>`,
+        `<div><strong>${phases.mid.label}</strong>：${phases.mid.count} 张</div>`,
+        `<div><strong>${phases.late.label}</strong>：${phases.late.count} 张</div>`
+      ];
+      phaseEl.innerHTML = phaseLines.join("");
+
+      const avgAll = computeAverageCost(entries);
+      const avgUnits = computeAverageCost(unitEntries);
+      const avgEvents = computeAverageCost(eventEntries);
+      avgEl.innerHTML = [
+        `<div><strong>整体</strong>：${avgAll.toFixed(2)}e</div>`,
+        `<div><strong>单位</strong>：${avgUnits.toFixed(2)}e</div>`,
+        `<div><strong>事件</strong>：${avgEvents.toFixed(2)}e</div>`
+      ].join("");
+    }
+
+    function renderCurve(targetEl, curve) {
+      targetEl.innerHTML = "";
+      if (curve.costs.length === 0) {
+        targetEl.innerHTML = "<div class=\"hint\">暂无数据</div>";
+        return;
+      }
+      for (const cost of curve.costs) {
+        const count = curve.byCost.get(cost);
+        const row = document.createElement("div");
+        row.className = "chart-row";
+        const label = document.createElement("div");
+        label.textContent = `${cost}e`;
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        const width = curve.maxCount === 0 ? 0 : Math.round((count / curve.maxCount) * 100);
+        fill.style.width = `${width}%`;
+        bar.appendChild(fill);
+        const value = document.createElement("div");
+        value.textContent = `${count}张`;
+        row.appendChild(label);
+        row.appendChild(bar);
+        row.appendChild(value);
+        targetEl.appendChild(row);
+      }
+    }
+
+    function renderRecommendedCurve(targetEl, curve) {
+      targetEl.innerHTML = "";
+      const maxCount = Math.max(curve.maxCount, ...RECOMMENDED_CURVE.map(item => item.max), 1);
+      for (const rec of RECOMMENDED_CURVE) {
+        const count = curve.byCost.get(rec.cost) || 0;
+        const row = document.createElement("div");
+        row.className = "chart-row";
+        const label = document.createElement("div");
+        label.textContent = `${rec.cost}e`;
+        const bar = document.createElement("div");
+        bar.className = "range-bar";
+        const range = document.createElement("div");
+        range.className = "range-fill";
+        range.style.left = `${Math.round((rec.min / maxCount) * 100)}%`;
+        range.style.width = `${Math.round(((rec.max - rec.min) / maxCount) * 100)}%`;
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.width = `${Math.round((count / maxCount) * 100)}%`;
+        bar.appendChild(range);
+        bar.appendChild(fill);
+        const value = document.createElement("div");
+        value.textContent = `${count}张`;
+        row.appendChild(label);
+        row.appendChild(bar);
+        row.appendChild(value);
+        targetEl.appendChild(row);
+      }
+    }
+
+    const RECOMMENDED_CURVE = [
+      { cost: 1, min: 4, max: 8 },
+      { cost: 2, min: 4, max: 8 },
+      { cost: 3, min: 4, max: 8 },
+      { cost: 4, min: 3, max: 6 },
+      { cost: 5, min: 2, max: 4 },
+      { cost: 6, min: 1, max: 3 },
+      { cost: 7, min: 0, max: 2 },
+      { cost: 8, min: 0, max: 2 },
+      { cost: 9, min: 0, max: 1 },
+      { cost: 10, min: 0, max: 1 }
+    ];
+
+    function buildCostCurve(entries) {
+      const byCost = new Map();
+      for (const entry of entries) {
+        const cost = entryCost(entry);
+        if (!Number.isFinite(cost)) continue;
+        byCost.set(cost, (byCost.get(cost) || 0) + entry.count);
+      }
+      const costs = [...byCost.keys()].sort((a, b) => a - b);
+      const maxCost = costs.length > 0 ? costs[costs.length - 1] : 0;
+      const maxCount = costs.reduce((max, cost) => Math.max(max, byCost.get(cost)), 0);
+      return { byCost, costs, maxCost, maxCount };
+    }
+
+    function summarizePhases(entries) {
+      const phases = {
+        early: { label: "前期(1-3)", count: 0 },
+        mid: { label: "中期(4-6)", count: 0 },
+        late: { label: "后期(7+)", count: 0 }
+      };
+      for (const entry of entries) {
+        const cost = entryCost(entry);
+        if (!Number.isFinite(cost)) continue;
+        if (cost <= 3) phases.early.count += entry.count;
+        else if (cost <= 6) phases.mid.count += entry.count;
+        else phases.late.count += entry.count;
+      }
+      return phases;
+    }
+
+    function computeAverageCost(entries) {
+      let totalCost = 0;
+      let totalCount = 0;
+      for (const entry of entries) {
+        const cost = entryCost(entry);
+        if (!Number.isFinite(cost)) continue;
+        totalCost += cost * entry.count;
+        totalCount += entry.count;
+      }
+      return totalCount === 0 ? 0 : totalCost / totalCount;
+    }
+
+    function render() {
+      renderMeta();
+      renderValidation();
+      renderDeckList();
+      renderCardList();
+      renderAnalysis();
+    }
+
+    function setupSelectors() {
+      const mainSelect = document.getElementById("main-faction");
+      const allySelect = document.getElementById("ally-faction");
+
+      mainSelect.innerHTML = `<option value="">未设置</option>` + FACTIONS.map(f => `<option value="${f}">${f}</option>`).join("");
+      allySelect.innerHTML = `<option value="无">无</option>` + FACTIONS.map(f => `<option value="${f}">${f}</option>`).join("");
+
+      mainSelect.addEventListener("change", () => {
+        state.deck.mainFaction = mainSelect.value;
+        markDirty();
+        render();
+      });
+      allySelect.addEventListener("change", () => {
+        state.deck.allyFaction = allySelect.value;
+        markDirty();
+        render();
+      });
+
+      const typeFilter = document.getElementById("type-filter");
+      typeFilter.innerHTML = `
+        <option value="all">全部类型</option>
+        <option value="unit">单位牌</option>
+        <option value="event">事件牌</option>
+      `;
+      typeFilter.addEventListener("change", renderCardList);
+
+      const factionFilter = document.getElementById("faction-filter");
+      factionFilter.innerHTML = `
+        <option value="all">所有阵营</option>
+        <option value="main">主阵营可用</option>
+        <option value="ally">联盟阵营可用</option>
+      `;
+      factionFilter.addEventListener("change", renderCardList);
+
+      const costFilter = document.getElementById("cost-filter");
+      costFilter.innerHTML = `<option value="all">费用：全部</option>` + UNIQUE_COSTS.map(cost => `<option value="${cost}">${cost}e</option>`).join("");
+      costFilter.addEventListener("change", renderCardList);
+
+      const gradeFilter = document.getElementById("grade-filter");
+      gradeFilter.innerHTML = `<option value="all">分级：全部</option>` + UNIQUE_GRADES.map(grade => `<option value="${grade}">${grade}</option>`).join("");
+      gradeFilter.addEventListener("change", renderCardList);
+
+      const skillFilter = document.getElementById("skill-filter");
+      skillFilter.innerHTML = `<option value="all">技能：全部</option>` + UNIQUE_SKILLS.map(skill => `<option value="${skill}">${skill}</option>`).join("");
+      skillFilter.addEventListener("change", renderCardList);
+
+      const sortFilter = document.getElementById("sort-filter");
+      sortFilter.innerHTML = `
+        <option value="name">排序：名称</option>
+        <option value="cost-asc">费用：从低到高</option>
+        <option value="cost-desc">费用：从高到低</option>
+      `;
+      sortFilter.addEventListener("change", renderCardList);
+    }
+
+    function setupActions() {
+      document.getElementById("deck-name").addEventListener("input", event => {
+        state.deck.name = event.target.value.trim() || "未命名卡组";
+        markDirty();
+      });
+
+      document.getElementById("search").addEventListener("input", renderCardList);
+
+      document.getElementById("btn-parse").addEventListener("click", () => {
+        const text = document.getElementById("import-text").value;
+        if (!text.trim()) {
+          showToast(document.getElementById("import-toast"), "请输入或粘贴卡组内容。");
+          return;
+        }
+        const parsed = parseDeckText(text);
+        applyParsedDeck(parsed);
+        const { errors } = validateDeck(state.deck);
+        showErrorsIfAny("卡组不合法", errors);
+        showToast(document.getElementById("import-toast"), "解析完成。");
+      });
+
+      document.getElementById("btn-clipboard").addEventListener("click", async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          const parsed = parseDeckText(text);
+          applyParsedDeck(parsed);
+          const { errors } = validateDeck(state.deck);
+          showErrorsIfAny("卡组不合法", errors);
+          showToast(document.getElementById("import-toast"), "已从剪贴板导入。");
+        } catch (error) {
+          showToast(document.getElementById("import-toast"), "无法读取剪贴板，请检查浏览器权限。");
+        }
+      });
+
+      document.getElementById("file-input").addEventListener("change", event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const parsed = parseDeckText(reader.result || "");
+          applyParsedDeck(parsed);
+          const { errors } = validateDeck(state.deck);
+          showErrorsIfAny("卡组不合法", errors);
+          showToast(document.getElementById("import-toast"), `已导入文件：${file.name}`);
+        };
+        reader.readAsText(file, "utf-8");
+        event.target.value = "";
+      });
+
+      document.getElementById("btn-new").addEventListener("click", () => {
+        state.deck = createEmptyDeck();
+        markDirty();
+        render();
+        showToast(document.getElementById("import-toast"), "已创建空白卡组。");
+      });
+
+      document.getElementById("btn-copy").addEventListener("click", async () => {
+        const { errors } = validateDeck(state.deck);
+        if (alertIfIllegal(errors, "导出卡组")) return;
+        const text = formatDeckExport(state.deck);
+        try {
+          await navigator.clipboard.writeText(text);
+          markExported();
+          showToast(document.getElementById("export-toast"), "已复制到剪贴板。");
+        } catch (error) {
+          showToast(document.getElementById("export-toast"), "复制失败，请检查浏览器权限。");
+        }
+      });
+
+      document.getElementById("btn-download").addEventListener("click", () => {
+        const { errors } = validateDeck(state.deck);
+        if (alertIfIllegal(errors, "导出卡组")) return;
+        const text = formatDeckExport(state.deck);
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        const safeName = (state.deck.name || "deck").replace(/[\\/:*?"<>|]/g, "_");
+        anchor.href = url;
+        anchor.download = `${safeName}.txt`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+        markExported();
+        showToast(document.getElementById("export-toast"), "已生成下载文件。");
+      });
+
+      document.getElementById("error-modal-close").addEventListener("click", hideErrorModal);
+      document.getElementById("error-modal").addEventListener("click", event => {
+        if (event.target.id === "error-modal") hideErrorModal();
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") hideErrorModal();
+      });
+
+      window.addEventListener("beforeunload", event => {
+        if (state.hasExported) return;
+        event.preventDefault();
+        event.returnValue = "";
+      });
+    }
+
+    setupSelectors();
+    setupActions();
+    render();
+  </script>
+</body>
+</html>
