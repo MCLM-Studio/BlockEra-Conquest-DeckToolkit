@@ -7,6 +7,7 @@
 ## 使用
 
 - 在本仓库的`releases`页面下载最新的 [index.html](https://github.com/MCLM-Studio/BlockEra-Conquest-DeckToolkit/releases/latest) 然后双击打开直接使用。
+- 或者访问在线版本： [BlockEra-Conquest-DeckToolkit](https://mclm-studio.github.io/BlockEra-Conquest-DeckToolkit/)
 
 ## 功能
 
@@ -17,12 +18,19 @@
 
 
 ## 注意事项
+- **本工具不会将用户的任何数据上传到服务器，所有操作均在本地进行，请放心使用。**
 - 本工具仅供卡组构建与分享使用，不涉及游戏内功能。
-- 请确保输入的卡组文本格式正确，以便工具能够正确解析与校验
-- 工具的版本与游戏版本同步，内置对应版本的卡牌库数据，如果你的工具版本与游戏版本不匹配，可能会导致部分卡牌无法识别或校验失败，请确保使用最新版本的工具以获得最佳体验。
-- 工具的最新版本始终与游戏版本同步发布，因此请定期检查工具的更新，以确保你使用的是与当前游戏版本兼容的工具版本。
-- 工具的使用过程中如有任何问题或建议，欢迎通过 [GitHub Issues](https://github.com/MCLM-Studio/BlockEra-Conquest-DeckToolkit/issues) 提出，我们会尽快回复并改进工具。
-- **工具不会将用户的任何数据上传到服务器，所有操作均在本地进行，请放心使用。**
+- 请确保输入的卡组文本格式正确，以便本工具能够正确解析与校验
+- 本工具的最新版本始终与游戏版本同步发布，因此请定期检查工具的更新，以确保你使用的是与当前游戏版本兼容的工具版本。
+- 本工具的版本(`vX.Y.Z-N 中的 X.Y.Z`)与游戏版本同步，内置对应版本的卡牌库数据，如果你的工具版本与游戏版本不匹配，可能会导致部分卡牌无法识别或校验失败，请确保使用最新版本的工具以获得最佳体验。
+- 本工具的构建号`vX.Y.Z-N 中的 N`)表示本工具在相同游戏版本内的迭代次数，通常包含一些小的修复和改进，但不影响与游戏版本的兼容性。只要主版本号和次版本号与游戏版本匹配，就可以正常使用。
+- 本工具的使用过程中如有任何问题或建议，欢迎通过 [GitHub Issues](https://github.com/MCLM-Studio/BlockEra-Conquest-DeckToolkit/issues) 提出，我们会尽快回复并改进工具。
 
 ## 版本信息
-- v2.0.0
+
+- 当前最新版本：v2.0.0-1
+- 发布日期：2026-05-24
+
+## 版权与许可
+
+- 许可协议见 [LICENSE](https://github.com/MCLM-Studio/BlockEra-Conquest-DeckToolkit/blob/main/LICENSE)。
