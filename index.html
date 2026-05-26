@@ -474,21 +474,21 @@
 
     const CARD_DB = [
       // 僵尸系列
-      { id: "unit.simple-zombie", name: "简单僵尸", type: "unit", cost: 2, size: 2, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
-      { id: "unit.normal-zombie", name: "普通僵尸", type: "unit", cost: 3, size: 2, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
-      { id: "unit.hard-zombie", name: "困难僵尸", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门"] },
+      { id: "unit.simple-zombie", name: "简单僵尸", type: "unit", cost: 2, size: 2, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "感染"] },
+      { id: "unit.normal-zombie", name: "普通僵尸", type: "unit", cost: 3, size: 2, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "感染"] },
+      { id: "unit.hard-zombie", name: "困难僵尸", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "感染"] },
       // 幼年僵尸
-      { id: "unit.simple-baby-zombie", name: "简单幼年僵尸", type: "unit", cost: 4, size: 1, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
-      { id: "unit.normal-baby-zombie", name: "普通幼年僵尸", type: "unit", cost: 5, size: 1, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
-      { id: "unit.hard-baby-zombie", name: "困难幼年僵尸", type: "unit", cost: 6, size: 1, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "奋战"] },
+      { id: "unit.simple-baby-zombie", name: "简单幼年僵尸", type: "unit", cost: 4, size: 1, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战", "感染"] },
+      { id: "unit.normal-baby-zombie", name: "普通幼年僵尸", type: "unit", cost: 5, size: 1, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战", "感染"] },
+      { id: "unit.hard-baby-zombie", name: "困难幼年僵尸", type: "unit", cost: 6, size: 1, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "奋战", "感染"] },
       // 僵尸村民
-      { id: "unit.simple-zombie-villager", name: "简单僵尸村民", type: "unit", cost: 2, size: 2, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
-      { id: "unit.normal-zombie-villager", name: "普通僵尸村民", type: "unit", cost: 3, size: 2, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光"] },
-      { id: "unit.hard-zombie-villager", name: "困难僵尸村民", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门"] },
+      { id: "unit.simple-zombie-villager", name: "简单僵尸村民", type: "unit", cost: 2, size: 2, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "感染"] },
+      { id: "unit.normal-zombie-villager", name: "普通僵尸村民", type: "unit", cost: 3, size: 2, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "感染"] },
+      { id: "unit.hard-zombie-villager", name: "困难僵尸村民", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "感染"] },
       // 幼年僵尸村民
-      { id: "unit.simple-baby-zombie-villager", name: "简单幼年僵尸村民", type: "unit", cost: 4, size: 1, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
-      { id: "unit.normal-baby-zombie-villager", name: "普通幼年僵尸村民", type: "unit", cost: 5, size: 1, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战"] },
-      { id: "unit.hard-baby-zombie-villager", name: "困难幼年僵尸村民", type: "unit", cost: 6, size: 1, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "奋战"] },
+      { id: "unit.simple-baby-zombie-villager", name: "简单幼年僵尸村民", type: "unit", cost: 4, size: 1, attack: 2, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战", "感染"] },
+      { id: "unit.normal-baby-zombie-villager", name: "普通幼年僵尸村民", type: "unit", cost: 5, size: 1, attack: 3, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "奋战", "感染"] },
+      { id: "unit.hard-baby-zombie-villager", name: "困难幼年僵尸村民", type: "unit", cost: 6, size: 1, attack: 4, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "破门", "奋战", "感染"] },
       // 蠹虫
       { id: "unit.simple-silverfish", name: "简单蠹虫", type: "unit", cost: 1, size: 1, attack: 1, hp: 1, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "末地", bracket: true }], skills: ["怕光", "虫蚀"] },
       { id: "unit.normal-silverfish", name: "普通蠹虫", type: "unit", cost: 1, size: 1, attack: 1, hp: 1, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }, { name: "末地", bracket: true }], skills: ["怕光", "虫蚀"] },
@@ -498,9 +498,9 @@
       { id: "unit.normal-skeleton", name: "普通骷髅", type: "unit", cost: 4, size: 2, attack: 4, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "射击"] },
       { id: "unit.hard-skeleton", name: "困难骷髅", type: "unit", cost: 5, size: 2, attack: 5, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["怕光", "射击"] },
       // 蜘蛛
-      { id: "unit.simple-spider", name: "简单蜘蛛", type: "unit", cost: 2, size: 1, attack: 1, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫"] },
-      { id: "unit.normal-spider", name: "普通蜘蛛", type: "unit", cost: 3, size: 1, attack: 2, hp: 3, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫"] },
-      { id: "unit.hard-spider", name: "困难蜘蛛", type: "unit", cost: 4, size: 1, attack: 3, hp: 4, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫"] },
+      { id: "unit.simple-spider", name: "简单蜘蛛", type: "unit", cost: 2, size: 1, attack: 1, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫", "攀爬"] },
+      { id: "unit.normal-spider", name: "普通蜘蛛", type: "unit", cost: 3, size: 1, attack: 2, hp: 2, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫", "攀爬"] },
+      { id: "unit.hard-spider", name: "困难蜘蛛", type: "unit", cost: 4, size: 1, attack: 3, hp: 2, category: "敌对生物", grade: "困难", limit: 1, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["中毒免疫", "攀爬"] },
       // 苦力怕
       { id: "unit.simple-creeper", name: "简单苦力怕", type: "unit", cost: 2, size: 2, attack: null, hp: 2, category: "敌对生物", grade: "简单", limit: 4, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["自爆"] },
       { id: "unit.normal-creeper", name: "普通苦力怕", type: "unit", cost: 3, size: 2, attack: null, hp: 3, category: "敌对生物", grade: "普通", limit: 2, deckLegal: true, factions: [{ name: "主世界", bracket: false }], skills: ["自爆"] },

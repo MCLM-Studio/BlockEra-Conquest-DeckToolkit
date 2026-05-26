@@ -6,7 +6,7 @@
 
 ## 使用
 
-- 在本仓库的`releases`页面下载最新的 [index.html](https://github.com/MCLM-Studio/BlockEra-Conquest-DeckToolkit/releases/latest) 然后双击打开直接使用。
+- 在本仓库的`releases`页面下载最新的 [BlockEra-Conquest-DeckToolkit.html](https://github.com/MCLM-Studio/BlockEra-Conquest-DeckToolkit/releases/latest) 然后双击打开直接使用。
 - 或者访问在线版本： [BlockEra-Conquest-DeckToolkit](https://mclm-studio.github.io/BlockEra-Conquest-DeckToolkit/)
 
 ## 功能
@@ -28,8 +28,8 @@
 
 ## 版本信息
 
-- 当前最新版本：v2.0.0-1
-- 发布日期：2026-05-24
+- 当前最新版本：v3.0.0-1
+- 发布日期：2026-05-26
 
 ## 版权与许可
 
